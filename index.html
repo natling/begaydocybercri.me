@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>ｃｙｂｅｒｃｒｉｍｅ</title>
+  <meta charset="UTF-8">
+  <link rel="shortcut icon" href="favicon.png"/>
+  <style>
+    body {
+      margin: 0px;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: black;
+      filter: blur(2px);
+    }
+
+    pre {
+      position: absolute;
+      margin: 0px;
+      text-align: center;
+      font-family: 'Courier';
+      font-style: italic;
+      font-size: 90px;
+      letter-spacing: 45px;
+      transition: transform 0.1s, color 0.1s;
+      mix-blend-mode: color-dodge;
+    }
+
+    @keyframes blink {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .cursor {
+      animation: blink 0.5s ease infinite alternate;
+    }
+  </style>
+</head>
+
+<body>
+</body>
+
+<script>
+  var settings = {
+    layers : 8,
+
+    message : 'would you\nlike to\ncommit\ncybercrime?\n\ny/n',
+
+    colors : ['#ff0000', '#00ff00', '#0000ff'],
+
+    jitter : {
+      x : 5,
+      y : 2,
+    },
+
+    delay : {
+      style : {
+        min : 100,
+        max : 200,
+      },
+
+      message : {
+        min : 1000,
+        max : 2000,
+      },
+
+      character : {
+        min : 100,
+        max : 120,
+      },
+    },
+  };
+
+  createLayers();
+  type();
+
+  function createLayers() {
+    for (var i = 0; i < settings.layers; i++) {
+      (function(i) {
+        var pre = document.createElement('pre');
+        document.body.appendChild(pre);
+
+        var text = document.createElement('span');
+        pre.appendChild(text);
+        text.className = 'text';
+
+        var cursor = document.createElement('span');
+        pre.appendChild(cursor);
+        cursor.className = 'cursor';
+        cursor.innerHTML = '|';
+
+        style();
+
+        function style() {
+          var x = randomIntegerInclusive(-settings.jitter.x, settings.jitter.x);
+          var y = randomIntegerInclusive(-settings.jitter.y, settings.jitter.y);
+          pre.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+
+          pre.style.color = randomItem(settings.colors);
+
+          var delay = randomIntegerInclusive(settings.delay.style.min, settings.delay.style.max);
+
+          setTimeout(style, delay);
+        }
+      })(i);
+    }
+  }
+
+  function type() {
+    var delay = randomIntegerInclusive(settings.delay.message.min, settings.delay.message.max);
+
+    setTimeout(start, delay);
+
+    function start() {
+      var texts = document.getElementsByClassName('text');
+
+      for (var i = 0; i < texts.length; i++) {
+        (function(i) {
+          addCharacter();
+
+          function addCharacter() {
+            if (texts[i].innerHTML.length < settings.message.length) {
+              texts[i].innerHTML = settings.message.slice(0, texts[i].innerHTML.length + 1);
+
+              var delay = randomIntegerInclusive(settings.delay.character.min, settings.delay.character.max);
+
+              setTimeout(addCharacter, delay);
+            }
+          }
+        })(i);
+      }
+    }
+  }
+
+  function randomIntegerInclusive(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function randomItem(array) {
+    return array[Math.floor(Math.random() * array.length)];
+  }
+</script>
+
+</html>

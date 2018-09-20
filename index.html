@@ -44,7 +44,7 @@
 </body>
 
 <script>
-  var settings = {
+  const settings = {
     layers : 8,
 
     message : 'would you\nlike to\ncommit\ncybercrime?\n\ny/n',
@@ -74,76 +74,73 @@
     },
   };
 
-  createLayers();
-  type();
+  const f = {
+    randomIntegerInclusive : (min, max) => {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
 
-  function createLayers() {
-    for (var i = 0; i < settings.layers; i++) {
-      (function(i) {
-        var pre = document.createElement('pre');
+    randomItem : array => array[Math.floor(Math.random() * array.length)],
+  };
+
+  const createLayers = () => {
+    for (let i = 0; i < settings.layers; i++) {
+      (i => {
+        const pre = document.createElement('pre');
         document.body.appendChild(pre);
 
-        var text = document.createElement('span');
+        const text = document.createElement('span');
         pre.appendChild(text);
         text.className = 'text';
 
-        var cursor = document.createElement('span');
+        const cursor = document.createElement('span');
         pre.appendChild(cursor);
         cursor.className = 'cursor';
         cursor.innerHTML = '|';
 
-        style();
-
-        function style() {
-          var x = randomIntegerInclusive(-settings.jitter.x, settings.jitter.x);
-          var y = randomIntegerInclusive(-settings.jitter.y, settings.jitter.y);
+        const style = () => {
+          const x = f.randomIntegerInclusive(-settings.jitter.x, settings.jitter.x);
+          const y = f.randomIntegerInclusive(-settings.jitter.y, settings.jitter.y);
           pre.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
 
-          pre.style.color = randomItem(settings.colors);
+          pre.style.color = f.randomItem(settings.colors);
 
-          var delay = randomIntegerInclusive(settings.delay.style.min, settings.delay.style.max);
-
+          const delay = f.randomIntegerInclusive(settings.delay.style.min, settings.delay.style.max);
           setTimeout(style, delay);
         }
+
+        style();
       })(i);
     }
   }
 
-  function type() {
-    var delay = randomIntegerInclusive(settings.delay.message.min, settings.delay.message.max);
+  const type = () => {
+    const start = () => {
+      const texts = document.getElementsByClassName('text');
 
-    setTimeout(start, delay);
-
-    function start() {
-      var texts = document.getElementsByClassName('text');
-
-      for (var i = 0; i < texts.length; i++) {
-        (function(i) {
-          addCharacter();
-
-          function addCharacter() {
+      for (let i = 0; i < texts.length; i++) {
+        (i => {
+          const addCharacter = () => {
             if (texts[i].innerHTML.length < settings.message.length) {
               texts[i].innerHTML = settings.message.slice(0, texts[i].innerHTML.length + 1);
 
-              var delay = randomIntegerInclusive(settings.delay.character.min, settings.delay.character.max);
-
+              const delay = f.randomIntegerInclusive(settings.delay.character.min, settings.delay.character.max);
               setTimeout(addCharacter, delay);
             }
           }
+
+          addCharacter();
         })(i);
       }
     }
+
+    const delay = f.randomIntegerInclusive(settings.delay.message.min, settings.delay.message.max);
+    setTimeout(start, delay);
   }
 
-  function randomIntegerInclusive(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-
-  function randomItem(array) {
-    return array[Math.floor(Math.random() * array.length)];
-  }
+  createLayers();
+  type();
 </script>
 
 </html>

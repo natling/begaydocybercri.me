@@ -21,11 +21,9 @@
       position: absolute;
       margin: 0px;
       text-align: center;
-      font-family: 'Courier';
-      font-style: italic;
-      font-size: 90px;
-      letter-spacing: 45px;
-      transition: transform 0.1s, color 0.1s;
+      font: italic 6vw Courier;
+      letter-spacing: 0.7em;
+      transition: 0.1s;
       mix-blend-mode: color-dodge;
     }
 
@@ -34,9 +32,7 @@
       to   { opacity: 1; }
     }
 
-    .cursor {
-      animation: blink 0.5s ease infinite alternate;
-    }
+    .cursor { animation: blink 0.5s ease infinite alternate; }
   </style>
 </head>
 
@@ -44,103 +40,58 @@
 </body>
 
 <script>
-  const settings = {
-    layers : 8,
-
-    message : 'would you\nlike to\ncommit\ncybercrime?\n\ny/n',
-
-    colors : ['#ff0000', '#00ff00', '#0000ff'],
-
-    jitter : {
-      x : 5,
-      y : 2,
-    },
-
-    delay : {
-      style : {
-        min : 100,
-        max : 200,
-      },
-
-      message : {
-        min : 2000,
-        max : 3000,
-      },
-
-      character : {
-        min : 100,
-        max : 120,
-      },
-    },
-  };
-
-  const f = {
-    randomIntegerInclusive : (min, max) => {
-      min = Math.ceil(min);
-      max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    },
-
-    randomItem : array => array[Math.floor(Math.random() * array.length)],
-  };
-
-  const createLayers = () => {
-    for (let i = 0; i < settings.layers; i++) {
-      (i => {
-        const pre = document.createElement('pre');
-        document.body.appendChild(pre);
-
-        const text = document.createElement('span');
-        pre.appendChild(text);
-        text.className = 'text';
-
-        const cursor = document.createElement('span');
-        pre.appendChild(cursor);
-        cursor.className = 'cursor';
-        cursor.innerHTML = '|';
-
-        const style = () => {
-          const x = f.randomIntegerInclusive(-settings.jitter.x, settings.jitter.x);
-          const y = f.randomIntegerInclusive(-settings.jitter.y, settings.jitter.y);
-          pre.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
-
-          pre.style.color = f.randomItem(settings.colors);
-
-          const delay = f.randomIntegerInclusive(settings.delay.style.min, settings.delay.style.max);
-          setTimeout(style, delay);
-        }
-
-        style();
-      })(i);
-    }
+  const randomIntegerInclusive = (min, max) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  const type = () => {
-    const start = () => {
-      const texts = document.getElementsByClassName('text');
+  const randomItem = array => array[Math.floor(Math.random() * array.length)]
 
-      for (let i = 0; i < texts.length; i++) {
-        (i => {
-          const addCharacter = () => {
-            if (texts[i].innerHTML.length < settings.message.length) {
-              texts[i].innerHTML = settings.message.slice(0, texts[i].innerHTML.length + 1);
+  const message = 'would you\nlike to\ncommit\ncybercrime?\n\ny/n';
 
-              const delay = f.randomIntegerInclusive(settings.delay.character.min, settings.delay.character.max);
-              setTimeout(addCharacter, delay);
-            }
-          }
+  const layers = Array.from({length: 8}, () => {
+    const pre    = document.body.appendChild(document.createElement('pre'));
+    const text   = pre.appendChild(document.createElement('span'));
+    const cursor = pre.appendChild(document.createElement('span'));
 
-          addCharacter();
-        })(i);
+    cursor.className = 'cursor';
+    cursor.innerHTML = '|';
+
+    const style = () => {
+      const [x, y] = [5, 2].map(n => randomIntegerInclusive(-n, n));
+
+      pre.style.transform = `translate(${x}px, ${y}px)`;
+      pre.style.color     = randomItem(['#ff0000', '#00ff00', '#0000ff']);
+
+      setTimeout(style, randomIntegerInclusive(100, 200));
+    }
+
+    const type = () => {
+      if (text.innerHTML.length < message.length) {
+        text.innerHTML = message.slice(0, text.innerHTML.length + 1);
+        setTimeout(type, randomIntegerInclusive(100, 120));
       }
     }
 
-    const delay = f.randomIntegerInclusive(settings.delay.message.min, settings.delay.message.max);
-    setTimeout(start, delay);
-  }
+    style();
+    return {text, type};
+  });
 
-  createLayers();
-  type();
+  setTimeout(() => layers.forEach(({type}) => type()), randomIntegerInclusive(2000, 3000));
+
+  window.onkeydown = ({key}) => {
+    if (layers.every(({text}) => text.innerHTML.length == message.length)) {
+      switch (key.toLowerCase()) {
+        case 'y':
+          window.location = 'https://en.wikipedia.org/wiki/Onion';
+          break;
+        case 'n':
+          window.location = 'https://www.fbi.gov/investigate/cyber';
+          break;
+      }
+    }
+  }
 </script>
 
 </html>
